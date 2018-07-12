@@ -116,7 +116,7 @@ class spam_detector():
 		# the input is the features to be selcted
 		self.features_selected = features_selected
 
-		logger.debug("Loading the spam SMS")
+		logger.debug("	")
 		bow, messages, self.y = spam_detector.load_spam_data()
 
 		#Get the vector X 
