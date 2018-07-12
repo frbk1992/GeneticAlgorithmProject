@@ -1,11 +1,18 @@
 
-#import SpamDetector as SD
+
 import PhishingDetector as PD
+import SpamDetector as SD
 import numpy as np
 import random
 
 feature_size_phishing = 30
 feature_size_spam = 141
+
+model_phishing = 1
+model_spam = 0
+
+classifier_neural_network = 1
+classifier_svm = 0
 
 class Agent():
 
@@ -33,7 +40,7 @@ class Agent():
 	population = 20
 	generations = 100
 
-	def ga():
+	def ga(model = model_phishing, classifier = classifier_svm):
 
 		agents = Agent.init_agents(Agent.population, Agent.features_size)
 
@@ -41,7 +48,7 @@ class Agent():
 
 			print("Generation: "+str(generation))
 
-			agents = Agent.fitness(agents)
+			agents = Agent.fitness(agents, model, classifier)
 			agents = Agent.selection(agents)
 			agents = Agent.crossover(agents)
 			agents = Agent.mutation(agents)
@@ -50,6 +57,7 @@ class Agent():
 			if any(agent.fitness >= 0.9 for agent in agents):
 
 				print("Found an agent")
+				print('\n'.join(map(str, agents)))
 				exit(0)
 
 
@@ -60,13 +68,24 @@ class Agent():
 		return [Agent(features_size) for _ in range(population)]
 
 	# This function will calculate the fitness in each memeber of the population
-	def fitness(agents):
-
+	def fitness(agents, model, classifier):
+		print("---------------------------------fitness-------------------------------")
 		for agent in agents:
 			# Generate a phishing_detector for each agent
-			pd = PD.phishing_detector(agent.chromosome)
-			agent.fitness = pd.test_features_svm()
-			#print(agent)
+			if model is model_phishing:
+				pd = PD.phishing_detector(agent.chromosome)
+				if classifier is not classifier_neural_network:
+					agent.fitness = pd.test_features_svm()
+				else:
+					agent.fitness = pd.test_features_neural_network()
+			else:
+				sd = SD.spam_detector(agent.chromosome)
+				if classifier is not classifier_neural_network:
+					agent.fitness = sd.test_features_svm()
+				else:
+					agent.fitness = sd.test_features_neural_network()
+
+			print(agent)
 
 		return agents
 
@@ -74,7 +93,7 @@ class Agent():
 	# the population will be decide by the highest fitness function higher the 
 	# probability to be selected
 	def selection(agents):
-
+		print("---------------------------------selection-------------------------------")
 		agents = sorted(agents, key = lambda agent: agent.fitness, reverse = True)
 		print('\n'.join(map(str, agents)))
 		agents = agents[:int(0.3 * len(agents))]
@@ -82,6 +101,7 @@ class Agent():
 
 	# The crossover will combine the agents that were selected in the selection function
 	def crossover(agents):
+		print("---------------------------------crossover-------------------------------")
 		new_blood = []
 		for _ in range(int((Agent.population - len(agents))/ 2)):
 			parent1 = random.choice(agents)
@@ -100,9 +120,10 @@ class Agent():
 
 	# The mutation will do random modification of the agents
 	def mutation(agents):
+		print("---------------------------------mutation-------------------------------")
 		for agent in agents:
 			for idx, param in enumerate(agent.chromosome):
-				if random.uniform(0.0, 1.0) <= 0.05:
+				if random.uniform(0.0, 1.0) <= 0.15:
 					if agent.chromosome[idx] == 1:
 						new_value = np.array([0])
 					else:
@@ -147,7 +168,18 @@ if __name__ == '__main__':
 	print('\n'.join(map(str, agents)))
 
 	"""
-	Agent.ga()
+	
+	# Phishing and SVM
+	Agent.ga(model_phishing, classifier_svm)
+
+	# Phishing and Neural Networks
+	#Agent.ga(model_phishing, classifier_neural_network)
+
+	# Spam and SVM
+	#Agent.ga(model_spam, classifier_svm)
+
+	# Spam and Neural Networks
+	#Agent.ga(model_spam, classifier_neural_network)
 
 	## Run the code for the selection
 
