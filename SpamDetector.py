@@ -16,10 +16,10 @@ import sys
 
 # Set the logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -34,7 +34,7 @@ class spam_detector():
 	
 
 	def load_spam_data():
-
+		
 		classes = ["spam", "ham"]
 
 		# Data File
@@ -122,6 +122,10 @@ class spam_detector():
 		#Get the vector X 
 		self.X = CountVectorizer(vocabulary=bow).fit_transform(messages)
 
+		# eliminate the columns with values 0 of the instances
+		self.X = np.delete(self.X.A, np.where(self.features_selected == 0), axis=1)
+		logger.debug("Eliminating the columns not selected by features_selected")
+
 		#y is a vector, it has to be a matrix, this loop creates a matrix size y.shape[0]x2
 		y2 = np.zeros((self.y.shape[0], 2))
 		for i in range(self.y.shape[0]):
@@ -140,9 +144,9 @@ class spam_detector():
 		logger.debug("Getting training and testing data")
 
 		#modifythe type from np.float64 (default type) to np.float32
-		self.X_train = self.X_train.A.astype(np.float32)
+		self.X_train = self.X_train.astype(np.float32)
 		self.y_train = self.y_train.astype(np.int32)
-		self.X_test = self.X_test.A.astype(np.float32)
+		self.X_test = self.X_test.astype(np.float32)
 		self.y_test = self.y_test.astype(np.int32)
 
 
@@ -150,6 +154,7 @@ class spam_detector():
 
 	# test the classifier with neural network, the function will return the MCC value
 	def test_features_neural_network(self):
+		
 		# Parameters for the classifier
 		learning_rate = 0.01
 		batch_size = 16 #the classifier will take blocks of 128 to run the classifier
@@ -190,6 +195,7 @@ class spam_detector():
 
 	# test the classifier using SVM, the function return the MCC value
 	def test_features_svm(self):
+		
 		# The SVM using SKLearn can only works with vector for the class labels, not in matrix like TensorFlow
 		y_train_svm = self.y_train[:,0]
 		y_test_svm = self.y_test[:,0]
@@ -210,7 +216,7 @@ class spam_detector():
 		return mcc
 
 
-input_ = np.ones(141)
-test = spam_detector(input_)
-test.test_features_neural_network()
-test.test_features_svm()
+# input_ = np.ones(141)
+# test = spam_detector(input_)
+# test.test_features_neural_network()
+# test.test_features_svm()

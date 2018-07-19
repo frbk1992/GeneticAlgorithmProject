@@ -34,6 +34,7 @@ class phishing_detector():
 
 	# Init the class
 	def __init__(self, features_selected):
+		
 
 		# check only features_selected has values of 0s and 1s
 		if ~((features_selected == 0) | (features_selected == 1)).all():
@@ -85,6 +86,7 @@ class phishing_detector():
 
 	# test the classifier with neural network, the function will return the MCC value
 	def test_features_neural_network(self):
+		
 		# Parameters for the classifier
 		learning_rate = 0.001
 		batch_size = 128 #the classifier will take blocks of 128 to run the classifier
@@ -125,6 +127,7 @@ class phishing_detector():
 
 	# test the classifier using SVM, the function return the MCC value
 	def test_features_svm(self):
+		
 		# The SVM using SKLearn can only works with vector for the class labels, not in matrix like TensorFlow
 		y_train_svm = self.y_train[:,0]
 		y_test_svm = self.y_test[:,0]

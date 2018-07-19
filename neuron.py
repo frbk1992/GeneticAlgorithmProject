@@ -98,6 +98,7 @@ class NeuronNetworkTwoHiddenLayer():
 
 		sess.close()
 		del sess
+		del init
 
 	"""
 	Clear the memory
@@ -155,6 +156,7 @@ class NeuronNetworkTwoHiddenLayer():
 		y_out= sess.run(OUTPUT, feed_dict={x_2: X_test.ravel()})
 		sess.close()
 		del sess
+		del init
 		return y_out
 
 
